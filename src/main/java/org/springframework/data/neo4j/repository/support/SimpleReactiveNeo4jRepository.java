@@ -173,7 +173,6 @@ public class SimpleReactiveNeo4jRepository<T, ID> implements ReactiveSortingRepo
 		if (entityMetaData.hasVersionProperty()) {
 			Neo4jPersistentProperty versionProperty = entityMetaData.getRequiredVersionProperty();
 			Object versionValue = entityMetaData.getPropertyAccessor(entity).getProperty(versionProperty);
-			Assert.notNull(versionValue, "@Version property `" + versionProperty.getFieldName() + "` must not be null on delete.");
 			return this.neo4jOperations.deleteByIdWithVersion(id, this.entityInformation.getJavaType(), versionProperty, versionValue);
 		} else {
 			return this.deleteById(id);
