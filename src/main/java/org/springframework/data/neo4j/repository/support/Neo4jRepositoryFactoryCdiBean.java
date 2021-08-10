@@ -45,8 +45,8 @@ public final class Neo4jRepositoryFactoryCdiBean<T> extends CdiRepositoryBean<T>
 	private final BeanManager beanManager;
 
 	public Neo4jRepositoryFactoryCdiBean(Set<Annotation> qualifiers, Class<T> repositoryType,
-			BeanManager beanManager, Optional<CustomRepositoryImplementationDetector> detector) {
-		super(qualifiers, repositoryType, beanManager, detector);
+			BeanManager beanManager, CustomRepositoryImplementationDetector detector) {
+		super(qualifiers, repositoryType, beanManager, Optional.of(detector));
 
 		this.beanManager = beanManager;
 	}
@@ -60,7 +60,7 @@ public final class Neo4jRepositoryFactoryCdiBean<T> extends CdiRepositoryBean<T>
 		return create(() -> new Neo4jRepositoryFactory(neo4jOperations, mappingContext), repositoryType);
 	}
 
-	private <T> T getReference(Class<T> clazz, CreationalContext<?> creationalContext) {
+	private <RT> RT getReference(Class<RT> clazz, CreationalContext<?> creationalContext) {
 
 		Set<Bean<?>> beans = beanManager.getBeans(clazz, Neo4jCdiExtension.ANY_BEAN);
 		if (beans.size() > 1) {
@@ -70,6 +70,7 @@ public final class Neo4jRepositoryFactoryCdiBean<T> extends CdiRepositoryBean<T>
 		}
 
 		Bean<?> bean = beanManager.resolve(beans);
-		return (T) beanManager.getReference(bean, clazz, creationalContext);
+		//noinspection unchecked
+		return (RT) beanManager.getReference(bean, clazz, creationalContext);
 	}
 }
