@@ -239,7 +239,7 @@ final class CompositePropertyConverterFactory implements Neo4jPersistentProperty
 	}
 
 	@Override
-	public Neo4jPersistentPropertyConverter getPropertyConverterFor(Neo4jPersistentProperty persistentProperty) {
+	public Neo4jPersistentPropertyConverter<?> getPropertyConverterFor(Neo4jPersistentProperty persistentProperty) {
 
 		CompositeProperty config = persistentProperty.getRequiredAnnotation(CompositeProperty.class);
 		Class<? extends Neo4jPersistentPropertyToMapConverter> delegateClass = config.converter();
@@ -260,7 +260,7 @@ final class CompositePropertyConverterFactory implements Neo4jPersistentProperty
 			// Avoid resolving this as long as possible.
 			Map<String, Type> typeVariableMap = GenericTypeResolver.getTypeVariableMap(delegateClass).entrySet()
 					.stream()
-					.collect(Collectors.toMap(e -> e.getKey().getName(), e -> e.getValue()));
+					.collect(Collectors.toMap(e -> e.getKey().getName(), Map.Entry::getValue));
 
 			Assert.isTrue(typeVariableMap.containsKey(KEY_TYPE_KEY),
 					() -> "SDN could not determine the key type of your toMap converter " + generateLocation(

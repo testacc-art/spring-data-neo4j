@@ -101,7 +101,8 @@ final class DefaultNeo4jEntityConverter implements Neo4jEntityConverter {
 	@Override
 	public <R> R read(Class<R> targetType, MapAccessor mapAccessor) {
 
-		Neo4jPersistentEntity<R> rootNodeDescription = (Neo4jPersistentEntity) nodeDescriptionStore.getNodeDescription(targetType);
+		@SuppressWarnings("unchecked") // ¯\_(ツ)_/¯
+		Neo4jPersistentEntity<R> rootNodeDescription = (Neo4jPersistentEntity<R>) nodeDescriptionStore.getNodeDescription(targetType);
 		MapAccessor queryRoot = determineQueryRoot(mapAccessor, rootNodeDescription);
 		if (queryRoot == null) {
 			throw new NoRootNodeMappingException(String.format("Could not find mappable nodes or relationships inside %s for %s", mapAccessor, rootNodeDescription));
@@ -223,7 +224,7 @@ final class DefaultNeo4jEntityConverter implements Neo4jEntityConverter {
 	 *
 	 * @param node Node whose attributes are about to be merged
 	 * @param record Record that should be merged
-	 * @return
+	 * @return A map accessor combining a {@link Node} and an arbitrary record
 	 */
 	private static MapAccessor mergeRootNodeWithRecord(Node node, MapAccessor record) {
 		Map<String, Object> mergedAttributes = new HashMap<>(node.size() + record.size() + 1);
@@ -509,7 +510,7 @@ final class DefaultNeo4jEntityConverter implements Neo4jEntityConverter {
 						if (relationshipDescription.hasRelationshipProperties()) {
 
 							Object relationshipProperties = map(possibleRelationship,
-									(Neo4jPersistentEntity) relationshipDescription.getRelationshipPropertiesEntity(),
+									(Neo4jPersistentEntity<?>) relationshipDescription.getRelationshipPropertiesEntity(),
 									mappedObject, relationshipsFromResult, nodesFromResult);
 							relationshipsAndProperties.add(relationshipProperties);
 							mappedObjectHandler.accept(possibleRelationship.type(), relationshipProperties);
@@ -536,7 +537,7 @@ final class DefaultNeo4jEntityConverter implements Neo4jEntityConverter {
 							.asRelationship();
 
 					Object relationshipProperties = map(relatedEntityRelationship,
-							(Neo4jPersistentEntity) relationshipDescription.getRelationshipPropertiesEntity(),
+							(Neo4jPersistentEntity<?>) relationshipDescription.getRelationshipPropertiesEntity(),
 							valueEntry, relationshipsFromResult, nodesFromResult);
 					relationshipsAndProperties.add(relationshipProperties);
 					mappedObjectHandler.accept(relatedEntity.get(RelationshipDescription.NAME_OF_RELATIONSHIP_TYPE).asString(), relationshipProperties);

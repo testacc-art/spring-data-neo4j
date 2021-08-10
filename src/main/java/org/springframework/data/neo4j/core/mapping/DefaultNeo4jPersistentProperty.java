@@ -60,7 +60,7 @@ final class DefaultNeo4jPersistentProperty extends AnnotationBasedPersistentProp
 
 	private final Neo4jMappingContext mappingContext;
 
-	private final Lazy<Neo4jPersistentPropertyConverter> customConversion;
+	private final Lazy<Neo4jPersistentPropertyConverter<?>> customConversion;
 
 	/**
 	 * Creates a new {@link AnnotationBasedPersistentProperty}.
@@ -119,7 +119,8 @@ final class DefaultNeo4jPersistentProperty extends AnnotationBasedPersistentProp
 			relationshipPropertiesClass = this.mappingContext.getPersistentEntity(getActualType());
 		} else {
 			Class<?> associationTargetType = this.getAssociationTargetType();
-			obverseOwner = this.mappingContext.addPersistentEntity(ClassTypeInformation.from(associationTargetType)).get();
+			obverseOwner = this.mappingContext.addPersistentEntity(ClassTypeInformation.from(associationTargetType)).orElse(null);
+			Assert.notNull(obverseOwner, "Obverse owner could not be added.");
 			if (dynamicAssociation) {
 
 				TypeInformation<?> mapValueType = this.getTypeInformation().getMapValueType();
@@ -197,7 +198,7 @@ final class DefaultNeo4jPersistentProperty extends AnnotationBasedPersistentProp
 	@Override
 	public boolean isAssociation() {
 
-		return this.isAssociation.orElse(false);
+		return this.isAssociation.or(false).get();
 	}
 
 	@Override
@@ -216,7 +217,9 @@ final class DefaultNeo4jPersistentProperty extends AnnotationBasedPersistentProp
 
 	@Override
 	public Function<Object, Value> getOptionalWritingConverter() {
+		//noinspection unchecked
 		return customConversion.getOptional()
+				.map(c -> (Neo4jPersistentPropertyConverter<Object>) c)
 				.map(c -> {
 					Function<Object, Value> originalConversion = c::write;
 					return this.isComposite() ? originalConversion : nullSafeWrite(originalConversion);
@@ -267,7 +270,7 @@ final class DefaultNeo4jPersistentProperty extends AnnotationBasedPersistentProp
 
 		String propertyName = this.graphPropertyName.getNullable();
 		if (propertyName == null) {
-			throw new MappingException("The property '" + propertyName + "' is not mapped to a Graph property!");
+			throw new MappingException("The attribute '" + this.getFieldName() + "' is not mapped to a Graph property!");
 		}
 
 		return propertyName;
@@ -276,7 +279,7 @@ final class DefaultNeo4jPersistentProperty extends AnnotationBasedPersistentProp
 	@Override
 	public boolean isInternalIdProperty() {
 
-		return this.isIdProperty() && ((Neo4jPersistentEntity) this.getOwner()).isUsingInternalIds();
+		return this.isIdProperty() && ((Neo4jPersistentEntity<?>) this.getOwner()).isUsingInternalIds();
 	}
 
 	@Override

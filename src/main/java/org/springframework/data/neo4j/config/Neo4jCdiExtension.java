@@ -82,7 +82,7 @@ public final class Neo4jCdiExtension extends CdiRepositoryExtensionSupport {
 	void registerRepositoryFactoryBeanPerRepositoryType(@Observes AfterBeanDiscovery event, BeanManager beanManager) {
 
 		Optional<CustomRepositoryImplementationDetector> optionalCustomRepositoryImplementationDetector =
-				Optional.ofNullable(getCustomImplementationDetector());
+				Optional.of(getCustomImplementationDetector());
 
 		for (Map.Entry<Class<?>, Set<Annotation>> entry : getRepositoryTypes()) {
 

@@ -337,7 +337,7 @@ public final class Neo4jMappingContext extends AbstractMappingContext<Neo4jPersi
 	 * @return An optional conversion.
 	 */
 	@Nullable
-	Neo4jPersistentPropertyConverter getOptionalCustomConversionsFor(Neo4jPersistentProperty persistentProperty) {
+	Neo4jPersistentPropertyConverter<?> getOptionalCustomConversionsFor(Neo4jPersistentProperty persistentProperty) {
 
 		// Is the annotation present at all?
 		if (!persistentProperty.isAnnotationPresent(ConvertWith.class)) {
