@@ -280,7 +280,7 @@ class DefaultReactiveNeo4jClient implements ReactiveNeo4jClient {
 	 * exception if the conversation failed. Thus allows safe re-throwing of the return value.
 	 *
 	 * @param ex the exception to translate
-	 * @return
+	 * @return Any translated exception
 	 */
 	private RuntimeException potentiallyConvertRuntimeException(RuntimeException ex) {
 		RuntimeException resolved = persistenceExceptionTranslator.translateExceptionIfPossible(ex);
@@ -317,7 +317,7 @@ class DefaultReactiveNeo4jClient implements ReactiveNeo4jClient {
 		}
 	}
 
-	final class RxStatementRunnerHolder {
+	static final class RxStatementRunnerHolder {
 		private final RxQueryRunner rxQueryRunner;
 
 		private final Publisher<Void> commit;

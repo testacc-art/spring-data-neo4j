@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.apiguardian.api.API;
 import org.neo4j.cypherdsl.core.Cypher;
+import org.springframework.lang.Nullable;
 
 /**
  * @author Michael J. Simons
@@ -52,7 +53,7 @@ final class NamedParameters {
 	 * @param value The value of the new parameter
 	 * @throws IllegalStateException when a parameter with the given name already exists
 	 */
-	void add(String name, Object value) {
+	void add(String name, @Nullable Object value) {
 
 		if (this.parameters.containsKey(name)) {
 			Object previousValue = this.parameters.get(name);
@@ -80,7 +81,8 @@ final class NamedParameters {
 				.collect(Collectors.joining(", ", ":params {", "}"));
 	}
 
-	private static Object formatValue(Object value) {
+	@Nullable
+	private static Object formatValue(@Nullable Object value) {
 		if (value == null) {
 			return null;
 		} else if (value instanceof String) {

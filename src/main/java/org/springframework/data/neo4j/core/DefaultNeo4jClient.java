@@ -99,6 +99,7 @@ class DefaultNeo4jClient implements Neo4jClient {
 			this.target = target;
 		}
 
+		@Nullable
 		@Override
 		public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
@@ -143,7 +144,7 @@ class DefaultNeo4jClient implements Neo4jClient {
 	 * Basically a holder of a cypher template supplier and a set of named parameters. It's main purpose is to orchestrate
 	 * the running of things with a bit of logging.
 	 */
-	class RunnableStatement {
+	static class RunnableStatement {
 
 		RunnableStatement(Supplier<String> cypherSupplier) {
 			this(cypherSupplier, new NamedParameters());
@@ -179,7 +180,7 @@ class DefaultNeo4jClient implements Neo4jClient {
 	 *
 	 * @param ex                  the exception to translate
 	 * @param exceptionTranslator the {@link PersistenceExceptionTranslator} to be used for translation
-	 * @return
+	 * @return Any translated exception
 	 */
 	private static RuntimeException potentiallyConvertRuntimeException(RuntimeException ex,
 			PersistenceExceptionTranslator exceptionTranslator) {
@@ -189,12 +190,12 @@ class DefaultNeo4jClient implements Neo4jClient {
 
 	class DefaultRunnableSpec implements RunnableSpec {
 
-		private RunnableStatement runnableStatement;
+		private final RunnableStatement runnableStatement;
 
 		private String targetDatabase;
 
 		DefaultRunnableSpec(Supplier<String> cypherSupplier) {
-			this.targetDatabase = Neo4jClient.verifyDatabaseName(resolveTargetDatabaseName(targetDatabase));
+			this.targetDatabase = Neo4jClient.verifyDatabaseName(resolveTargetDatabaseName(null));
 			this.runnableStatement = new RunnableStatement(cypherSupplier);
 		}
 
