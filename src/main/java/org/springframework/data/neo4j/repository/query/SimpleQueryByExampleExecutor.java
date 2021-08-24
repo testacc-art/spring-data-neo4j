@@ -26,7 +26,7 @@ import org.springframework.data.neo4j.core.FluentFindOperation;
 import org.springframework.data.neo4j.core.Neo4jOperations;
 import org.springframework.data.neo4j.core.mapping.CypherGenerator;
 import org.springframework.data.neo4j.core.mapping.Neo4jMappingContext;
-import org.springframework.data.repository.query.FluentQuery;
+import org.springframework.data.repository.query.FluentQuery.FetchableFluentQuery;
 import org.springframework.data.repository.query.QueryByExampleExecutor;
 import org.springframework.data.support.PageableExecutionUtils;
 
@@ -105,12 +105,12 @@ public final class SimpleQueryByExampleExecutor<T> implements QueryByExampleExec
 	}
 
 	@Override
-	public <S extends T, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> function) {
+	public <S extends T, R> R findBy(Example<S> example, Function<FetchableFluentQuery<S>, R> function) {
 
 		if (this.neo4jOperations instanceof FluentFindOperation) {
-			FetchableFluentQuerySupport<S, S> t = new FetchableFluentQuerySupport<>(example, example.getProbeType(),
+			FetchableFluentQuery<S> fluentQuery = new FetchableFluentQueryImpl<>(example, example.getProbeType(),
 					mappingContext, (FluentFindOperation) this.neo4jOperations, this::count, this::exists);
-			return function.apply(t);
+			return function.apply(fluentQuery);
 		}
 		throw new UnsupportedOperationException(
 				"Fluent find by example not supported with standard Neo4jOperations. Must support fluent queries too.");

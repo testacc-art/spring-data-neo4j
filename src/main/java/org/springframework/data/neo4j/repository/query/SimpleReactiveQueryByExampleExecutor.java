@@ -21,10 +21,11 @@ import org.neo4j.cypherdsl.core.Statement;
 import org.reactivestreams.Publisher;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.neo4j.core.ReactiveFluentFindOperation;
 import org.springframework.data.neo4j.core.ReactiveNeo4jOperations;
 import org.springframework.data.neo4j.core.mapping.CypherGenerator;
 import org.springframework.data.neo4j.core.mapping.Neo4jMappingContext;
-import org.springframework.data.repository.query.FluentQuery;
+import org.springframework.data.repository.query.FluentQuery.ReactiveFluentQuery;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -93,9 +94,14 @@ public final class SimpleReactiveQueryByExampleExecutor<T> implements ReactiveQu
 		return findAll(example).hasElements();
 	}
 
-	@Override public <S extends T, R, P extends Publisher<R>> P findBy(
-			Example<S> example,
-			Function<FluentQuery.ReactiveFluentQuery<S>, P> function) {
-		throw new UnsupportedOperationException();
+	@Override
+	public <S extends T, R, P extends Publisher<R>> P findBy(Example<S> example, Function<ReactiveFluentQuery<S>, P> function) {
+		if (this.neo4jOperations instanceof ReactiveFluentFindOperation) {
+			ReactiveFluentQuery<S> fluentQuery = new ReactiveFluentQueryImpl<>(example, example.getProbeType(),
+					mappingContext, (ReactiveFluentFindOperation) this.neo4jOperations, this::count, this::exists);
+			return function.apply(fluentQuery);
+		}
+		throw new UnsupportedOperationException(
+				"Fluent find by example not supported with standard Neo4jOperations. Must support fluent queries too.");
 	}
 }
