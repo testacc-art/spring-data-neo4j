@@ -17,6 +17,7 @@ package org.springframework.data.neo4j.repository.query;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.apiguardian.api.API;
 import org.neo4j.cypherdsl.core.Cypher;
@@ -29,6 +30,7 @@ import org.springframework.data.neo4j.repository.support.CypherdslConditionExecu
 import org.springframework.data.neo4j.repository.support.Neo4jEntityInformation;
 import org.springframework.data.neo4j.repository.support.SimpleNeo4jRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
+import org.springframework.data.repository.query.FluentQuery;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Predicate;
@@ -108,5 +110,10 @@ public final class QuerydslNeo4jPredicateExecutor<T> implements QuerydslPredicat
 	@Override
 	public boolean exists(Predicate predicate) {
 		return findAll(predicate).iterator().hasNext();
+	}
+
+	@Override
+	public <S extends T, R> R findBy(Predicate predicate, Function<FluentQuery.FetchableFluentQuery<S>, R> function) {
+		throw new UnsupportedOperationException();
 	}
 }

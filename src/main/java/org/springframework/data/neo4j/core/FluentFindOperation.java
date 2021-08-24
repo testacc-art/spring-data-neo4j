@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import org.apiguardian.api.API;
 import org.neo4j.cypherdsl.core.Statement;
+import org.springframework.data.neo4j.repository.query.QueryFragmentsAndParameters;
 import org.springframework.lang.Nullable;
 
 /**
@@ -105,6 +106,8 @@ public interface FluentFindOperation {
 		 * @throws IllegalArgumentException if query is {@literal null}.
 		 */
 		TerminatingFind<T> matching(String query, @Nullable Map<String, Object> parameter);
+
+		TerminatingFind<T> matching(QueryFragmentsAndParameters queryFragmentsAndParameters);
 
 		/**
 		 * Set the filter query to be used.
